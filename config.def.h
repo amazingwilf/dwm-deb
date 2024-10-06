@@ -57,9 +57,10 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	{ .class = "Lxappearance", .isfloating = 1, .floatpos = "50% 50% -1w -1h" },
-	{ .class = "St", .tags = 1 << 0 },
+	{ .class = "St", .tags = 1 << 0, .isterminal = 1 },
 	{ .class = "firefox", .tags = 1 << 1 },
 	{ .class = "Thunar", .tags = 1 << 2 },
+	{ .title = "Event Tester", .noswallow = 1 },
 	{ .class = "spterm", .scratchkey = 't', .isfloating = 1, .floatpos = "50% 50% 85% 85%" },
 	{ .class = "spfm", .scratchkey = 'r', .isfloating = 1, .floatpos = "50% 50% 75% 75%" },
 };
@@ -71,6 +72,7 @@ static const int resizehints 		= 0;    /* 1 means respect size hints in tiled re
 static const int lockfullscreen 	= 1; /* 1 will force focus on the fullscreen window */
 static int floatposgrid_x           = 5;        /* float grid columns */
 static int floatposgrid_y           = 5;        /* float grid rows */
+static const int swallowfloating    = 0;        /* 1 means swallow floating windows by default */
 static const char *toggle_float_pos	= "50% 50% 80% 80%"; // default floating position when triggering togglefloating
 
 #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
@@ -142,6 +144,10 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                       XK_b,      setlayout,      {.v = &layouts[6]} },
+	{ MODKEY,                       XK_g,      setlayout,      {.v = &layouts[11]} },
+	{ MODKEY,						XK_comma,  cyclelayout,    {.i = -1 } },
+	{ MODKEY,           			XK_period, cyclelayout,    {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY|ShiftMask,             XK_b,      togglebar,      {0} },
 	{ MODKEY|ShiftMask,             XK_f,      togglefullscr,  {0} },
