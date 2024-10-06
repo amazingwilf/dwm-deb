@@ -58,6 +58,8 @@ static const Rule rules[] = {
 	{ .class = "St", .tags = 1 << 0 },
 	{ .class = "firefox", .tags = 1 << 1 },
 	{ .class = "Thunar", .tags = 1 << 2 },
+	{ .class = "spterm", .scratchkey = 't', .isfloating = 1, .floatpos = "50% 50% 85% 85%" },
+	{ .class = "spfm", .scratchkey = 'r', .isfloating = 1, .floatpos = "50% 50% 75% 75%" },
 };
 
 /* layout(s) */
@@ -105,14 +107,22 @@ static const char *webcmd[]		= { "firefox", NULL };
 static const char *fmcmd[]		= { "thunar", NULL };
 static const char *dmenucmd[]	= { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_magenta, "-sb", col_sel, "-sf", col_yellow, NULL };
 
+static const char *sptermcmd[] 	= { "t", "st", "-c", "spterm,spterm", NULL }; 
+static const char *spfmcmd[] 	= { "r", "st", "-c", "spfm,spfm", "-e", "ranger", NULL }; 
+
+
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_w,      spawn,          {.v = webcmd } },
 	{ MODKEY,                       XK_e,      spawn,          {.v = fmcmd } },
+	{ MODKEY,						XK_grave,  togglescratch,  {.v = sptermcmd } },
+	{ MODKEY,						XK_r,      togglescratch,  {.v = spfmcmd } },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_j,      rotatestack,    {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_k,      rotatestack,    {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
