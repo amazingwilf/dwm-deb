@@ -1,0 +1,47 @@
+Xft.dpi:	144
+
+Xcursor.theme:  Bibata-Modern-Ice
+Xcursor.size:	44
+
+#define base00 #0F1419
+#define base01 #131721
+#define base02 #272D38
+#define base03 #3E4B59
+#define base04 #BFBDB6
+#define base05 #E6E1CF
+#define base06 #E6E1Ca
+#define base07 #F3F4F5
+#define base08 #F07178
+#define base09 #FF8F40
+#define base0A #FFB454
+#define base0B #B8CC52
+#define base0C #95E6CB
+#define base0D #59C2FF
+#define base0E #D2A6FF
+#define base0F #E6B673
+
+*.foreground:   base05
+*.background:   base01
+*.cursorColor:  base09
+
+*.color0:       base00
+*.color1:       base08
+*.color2:       base0B
+*.color3:       base0A
+*.color4:       base0D
+*.color5:       base0E
+*.color6:       base0C
+*.color7:       base05
+
+*.color8:       base03
+*.color9:       base09
+*.color10:      base0B
+*.color11:      base0A
+*.color12:      base0D
+*.color13:      base0E
+*.color14:      base0C
+*.color15:      base07
+
+st.font:        FiraMono Nerd Font:size=16
+st.borderpx:    12
+
