@@ -11,43 +11,76 @@ static       int smartgaps          = 0;        /* 1 means no outer gap when the
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int user_bh            = 5;        /* 2 is the default spacing around the bar's font */
-static const char buttonbar[]       = " ";
+static const char buttonbar[]       = " ";
 #define ICONSIZE					(bh - 12)   /* icon size */
 #define ICONSPACING					10 /* space between icon and title */
 static const char *fonts[]          = { "Noto Sans:style=Medium:size=14",
 										"FiraMono Nerd Font:size=16",
 										"FiraMono Nerd Font:style=Bold:size=12" };
 static const char dmenufont[]       = "Noto Sans:size=15";
-static const char col_black[]       = "#000000";
-static const char col_gray1[]       = "#0f1419";
-static const char col_gray2[]       = "#3e4b59";
-static const char col_gray3[]       = "#ebe1cf";
-static const char col_gray4[]       = "#f3f4f5";
-static const char col_yellow[]		= "#FFB454";
-static const char col_blue[]		= "#59c2ff";
-static const char col_magenta[]		= "#D2A6FF";
-static const char col_sel[]         = "#a10101";
-static const char *colors[][4]      = {
+
+#include "termcolors.h"
+
+static char normfgcolor[]			= "#bbbbbb";
+static char normbgcolor[]			= "#222222";
+static char normbordercolor[]		= "#444444";
+static char normfloatcolor[]		= "#444444";
+
+static char selfgcolor[]			= "#eeeeee";
+static char selbgcolor[]			= "#005577";
+static char selbordercolor[]		= "#61afef";
+static char selfloatcolor[]			= "#c678dd";
+
+static char stbuttonfgcolor[]		= "#61afef";
+static char stbuttonbgcolor[]		= "#222222";
+static char stbuttonbordercolor[]	= "#000000";
+static char stbuttonfloatcolor[]	= "#000000";
+
+static char ltsymbolfgcolor[]		= "#ffdd00";
+static char ltsymbolbgcolor[]		= "#222222";
+static char ltsymbolbordercolor[]	= "#000000";
+static char ltsymbolfloatcolor[]	= "#000000";
+
+static char tagsnormfgcolor[]		= "#444444";
+static char tagsnormbgcolor[]		= "#222222";
+static char tagsnormbordercolor[]	= "#000000";
+static char tagsnormfloatcolor[]	= "#000000";
+
+static char tagsoccfgcolor[]		= "#bbbbbb";
+static char tagsoccbgcolor[]		= "#222222";
+static char tagsoccbordercolor[]	= "#000000";
+static char tagsoccfloatcolor[]		= "#000000";
+
+static char tagsselfgcolor[]		= "#eeeeee";
+static char tagsselbgcolor[]		= "#005577";
+static char tagsselbordercolor[]	= "#000000";
+static char tagsselfloatcolor[]		= "#000000";
+
+static char *colors[][4]      = {
 	/*               		fg           bg         border   */
-	[SchemeNorm] 		= { col_gray3,   col_gray1, col_gray2, col_gray2   },
-	[SchemeSel]  		= { col_gray4,   col_sel,   col_blue,  col_magenta },
-	[SchemeLtSymbol]	= { col_yellow,  col_gray1, col_black, col_black   },
-	[SchemeTagsNorm] 	= { col_gray2,   col_gray1, col_black, col_black   },
-	[SchemeTagsOcc] 	= { col_gray3,   col_gray1, col_black, col_black   },
-	[SchemeTagsSel] 	= { col_gray4,   col_sel,   col_black, col_black   },
+	[SchemeNorm] 		= { normfgcolor,		normbgcolor,		normbordercolor, 		normfloatcolor     },
+	[SchemeSel] 		= { selfgcolor,			selbgcolor,			selbordercolor, 		selfloatcolor      },
+	[SchemeStButton] 	= { stbuttonfgcolor,	stbuttonbgcolor,	stbuttonbordercolor, 	stbuttonfloatcolor },
+	[SchemeLtSymbol] 	= { ltsymbolfgcolor,	ltsymbolbgcolor,	ltsymbolbordercolor,	ltsymbolfloatcolor },
+	[SchemeTagsNorm] 	= { tagsnormfgcolor,	tagsnormbgcolor,	tagsnormbordercolor, 	tagsnormfloatcolor },
+	[SchemeTagsOcc] 	= { tagsoccfgcolor,		tagsoccbgcolor,		tagsoccbordercolor,		tagsoccfloatcolor  },
+	[SchemeTagsSel] 	= { tagsselfgcolor,		tagsselbgcolor,		tagsselbordercolor,		tagsselfloatcolor  },
 };
+
+
 static const XPoint stickyicon[]    = { {0,0}, {4,0}, {4,8}, {2,6}, {0,8}, {0,0} }; /* represents the icon as an array of vertices */
 static const XPoint stickyiconbb    = {4,8};	/* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
 
-static const unsigned int baralpha = 0xd0;
+static const unsigned int baralpha = 0x01;
 static const unsigned int borderalpha = OPAQUE;
 static const unsigned int alphas[][4]      = {
     [SchemeNorm] 		= { OPAQUE, baralpha, borderalpha, borderalpha },
 	[SchemeSel]  		= { OPAQUE, baralpha, borderalpha, borderalpha },
 	[SchemeLtSymbol]  	= { OPAQUE, baralpha, borderalpha, borderalpha },
+	[SchemeStButton]  	= { OPAQUE, baralpha, borderalpha, borderalpha },
     [SchemeTagsNorm] 	= { OPAQUE, baralpha, borderalpha, borderalpha },
     [SchemeTagsOcc] 	= { OPAQUE, baralpha, borderalpha, borderalpha },
-    [SchemeTagsSel] 	= { OPAQUE, baralpha, borderalpha, borderalpha },
+    [SchemeTagsSel] 	= { OPAQUE, OPAQUE,   borderalpha, borderalpha },
 };
 
 /* tagging */
@@ -111,7 +144,7 @@ static const Layout layouts[] = {
 static const char *termcmd[]  	= { "st", "-T", "Terminal", NULL };
 static const char *webcmd[]		= { "firefox", NULL };
 static const char *fmcmd[]		= { "thunar", NULL };
-static const char *dmenucmd[]	= { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_magenta, "-sb", col_sel, "-sf", col_yellow, NULL };
+static const char *dmenucmd[]	= { "dmenu_run", "-fn", dmenufont, "-nb", normbgcolor, "-nf", selfloatcolor, "-sb", tagsselbgcolor, "-sf", ltsymbolfgcolor, NULL };
 
 static const char *sptermcmd[] 	= { "t", "st", "-c", "spterm,spterm", NULL }; 
 static const char *spfmcmd[] 	= { "r", "st", "-c", "spfm,spfm", "-e", "ranger", NULL }; 
