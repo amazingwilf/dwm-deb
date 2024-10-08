@@ -99,6 +99,9 @@ enum {
 enum { 
     SchemeNorm, 
     SchemeSel,
+    SchemeSticky,
+    SchemeScratchNorm,
+    SchemeScratchSel,
     SchemeStButton,
     SchemeLtSymbol,
     SchemeTagsNorm,
@@ -1226,7 +1229,15 @@ focus(Client *c)
 		detachstack(c);
 		attachstack(c);
 		grabbuttons(c, 1);
-		if(c->isfloating)
+		if (c->scratchkey != 0 && c->isfloating)
+			XSetWindowBorder(dpy, c->win, scheme[SchemeScratchSel][ColFloat].pixel);
+        else if (c->scratchkey != 0)
+			XSetWindowBorder(dpy, c->win, scheme[SchemeScratchSel][ColFloat].pixel);
+        else if(c->issticky && c->isfloating)
+			XSetWindowBorder(dpy, c->win, scheme[SchemeSticky][ColFloat].pixel);
+        else if(c->issticky)
+			XSetWindowBorder(dpy, c->win, scheme[SchemeSticky][ColBorder].pixel);
+        else if(c->isfloating)
 			XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColFloat].pixel);
 		else
 			XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
@@ -1662,6 +1673,21 @@ loadxrdb()
         XRDB_LOAD_COLOR("dwm.selbgcolor", selbgcolor);
         XRDB_LOAD_COLOR("dwm.selbordercolor", selbordercolor);
         XRDB_LOAD_COLOR("dwm.selfloatcolor", selfloatcolor);
+
+        XRDB_LOAD_COLOR("dwm.stickyfgcolor", stickyfgcolor);
+        XRDB_LOAD_COLOR("dwm.stickybgcolor", stickybgcolor);
+        XRDB_LOAD_COLOR("dwm.stickybordercolor", stickybordercolor);
+        XRDB_LOAD_COLOR("dwm.stickyfloatcolor", stickyfloatcolor);
+
+        XRDB_LOAD_COLOR("dwm.scratchnormfgcolor", scratchnormfgcolor);
+        XRDB_LOAD_COLOR("dwm.scratchnormbgcolor", scratchnormbgcolor);
+        XRDB_LOAD_COLOR("dwm.scratchnormbordercolor", scratchnormbordercolor);
+        XRDB_LOAD_COLOR("dwm.scratchnormfloatcolor", scratchnormfloatcolor);
+
+        XRDB_LOAD_COLOR("dwm.scratchselfgcolor", scratchselfgcolor);
+        XRDB_LOAD_COLOR("dwm.scratchselbgcolor", scratchselbgcolor);
+        XRDB_LOAD_COLOR("dwm.scratchselbordercolor", scratchselbordercolor);
+        XRDB_LOAD_COLOR("dwm.scratchselfloatcolor", scratchselfloatcolor);
 
         XRDB_LOAD_COLOR("dwm.stbuttonfgcolor", stbuttonfgcolor);
         XRDB_LOAD_COLOR("dwm.stbuttonbgcolor", stbuttonbgcolor);
@@ -2791,7 +2817,15 @@ togglefloating(const Arg *arg)
 	if (c->isfullscreen) /* no support for fullscreen windows */
 		return;
 	c->isfloating = !c->isfloating || c->isfixed;
- 	if (selmon->sel->isfloating)
+	if (c->scratchkey != 0 && c->isfloating)
+		XSetWindowBorder(dpy, c->win, scheme[SchemeScratchSel][ColFloat].pixel);
+    else if (c->scratchkey != 0)
+		XSetWindowBorder(dpy, c->win, scheme[SchemeScratchSel][ColBorder].pixel);
+    else if (c->issticky && c->isfloating)
+		XSetWindowBorder(dpy, c->win, scheme[SchemeSticky][ColFloat].pixel);
+	else if (c->issticky)
+		XSetWindowBorder(dpy, c->win, scheme[SchemeSticky][ColBorder].pixel);
+    else if (selmon->sel->isfloating)
 		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColFloat].pixel);
 	else
 		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColBorder].pixel);
@@ -2826,6 +2860,7 @@ togglescratch(const Arg *arg)
 
 	for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
 	if (found) {
+		XSetWindowBorder(dpy, c->win, scheme[SchemeScratchNorm][ColBorder].pixel);
 		c->tags = ISVISIBLE(c) ? 0 : selmon->tagset[selmon->seltags];
 		focus(NULL);
 		arrange(selmon);
@@ -2845,6 +2880,14 @@ togglesticky(const Arg *arg)
 {
 	if (!selmon->sel)
 		return;
+	if (selmon->sel->issticky && selmon->sel->isfloating)
+		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSticky][ColFloat].pixel);
+    else if (selmon->sel->issticky)
+		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSticky][ColBorder].pixel);
+	else if (selmon->sel->isfloating)
+		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColFloat].pixel);
+	else
+		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColBorder].pixel);
     setsticky(selmon->sel, !selmon->sel->issticky);
 	arrange(selmon);
 }
@@ -2916,7 +2959,11 @@ unfocus(Client *c, int setfocus)
 	if (!c)
 		return;
 	grabbuttons(c, 0);
-    if (c->isfloating)
+	if (c->scratchkey != 0 && c->isfloating)
+		XSetWindowBorder(dpy, c->win, scheme[SchemeScratchNorm][ColFloat].pixel);
+    else if (c->scratchkey != 0)
+		XSetWindowBorder(dpy, c->win, scheme[SchemeScratchNorm][ColBorder].pixel);
+    else if (c->isfloating)
         XSetWindowBorder(dpy, c->win, scheme[SchemeNorm][ColFloat].pixel);
     else
 	    XSetWindowBorder(dpy, c->win, scheme[SchemeNorm][ColBorder].pixel);

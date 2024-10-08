@@ -12,7 +12,7 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int user_bh            = 5;        /* 2 is the default spacing around the bar's font */
 static const char buttonbar[]       = " ";
-#define ICONSIZE					(bh - 12)   /* icon size */
+#define ICONSIZE					(bh - 4)   /* icon size */
 #define ICONSPACING					10 /* space between icon and title */
 static const char *fonts[]          = { "Noto Sans:style=Medium:size=14",
 										"FiraMono Nerd Font:size=16",
@@ -31,6 +31,21 @@ static char selbgcolor[]			= "#005577";
 static char selbordercolor[]		= "#61afef";
 static char selfloatcolor[]			= "#c678dd";
 
+static char stickyfgcolor[]			= "#bbbbbb";
+static char stickybgcolor[]			= "#222222";
+static char stickybordercolor[]		= "#ffdd00";
+static char stickyfloatcolor[]		= "#ffdd00";
+
+static char scratchnormfgcolor[]	= "#bbbbbb";
+static char scratchnormbgcolor[]	= "#222222";
+static char scratchnormbordercolor[] = "#444444";
+static char scratchnormfloatcolor[]	= "#444444";
+
+static char scratchselfgcolor[]		= "#bbbbbb";
+static char scratchselbgcolor[]		= "#222222";
+static char scratchselbordercolor[]	= "#ff5555";
+static char scratchselfloatcolor[]	= "#ff5555";
+
 static char stbuttonfgcolor[]		= "#61afef";
 static char stbuttonbgcolor[]		= "#222222";
 static char stbuttonbordercolor[]	= "#000000";
@@ -41,12 +56,12 @@ static char ltsymbolbgcolor[]		= "#222222";
 static char ltsymbolbordercolor[]	= "#000000";
 static char ltsymbolfloatcolor[]	= "#000000";
 
-static char tagsnormfgcolor[]		= "#444444";
+static char tagsnormfgcolor[]		= "#666666";
 static char tagsnormbgcolor[]		= "#222222";
 static char tagsnormbordercolor[]	= "#000000";
 static char tagsnormfloatcolor[]	= "#000000";
 
-static char tagsoccfgcolor[]		= "#bbbbbb";
+static char tagsoccfgcolor[]		= "#aaaaaa";
 static char tagsoccbgcolor[]		= "#222222";
 static char tagsoccbordercolor[]	= "#000000";
 static char tagsoccfloatcolor[]		= "#000000";
@@ -60,6 +75,9 @@ static char *colors[][4]      = {
 	/*               		fg           bg         border   */
 	[SchemeNorm] 		= { normfgcolor,		normbgcolor,		normbordercolor, 		normfloatcolor     },
 	[SchemeSel] 		= { selfgcolor,			selbgcolor,			selbordercolor, 		selfloatcolor      },
+	[SchemeSticky] 		= { stickyfgcolor,		stickybgcolor,		stickybordercolor, 		stickyfloatcolor   },
+	[SchemeScratchNorm] = { scratchnormfgcolor,	scratchnormbgcolor,	scratchnormbordercolor,	scratchnormfloatcolor   },
+	[SchemeScratchSel]  = { scratchselfgcolor,	scratchselbgcolor,	scratchselbordercolor, 	scratchselfloatcolor   },
 	[SchemeStButton] 	= { stbuttonfgcolor,	stbuttonbgcolor,	stbuttonbordercolor, 	stbuttonfloatcolor },
 	[SchemeLtSymbol] 	= { ltsymbolfgcolor,	ltsymbolbgcolor,	ltsymbolbordercolor,	ltsymbolfloatcolor },
 	[SchemeTagsNorm] 	= { tagsnormfgcolor,	tagsnormbgcolor,	tagsnormbordercolor, 	tagsnormfloatcolor },
@@ -71,11 +89,14 @@ static char *colors[][4]      = {
 static const XPoint stickyicon[]    = { {0,0}, {4,0}, {4,8}, {2,6}, {0,8}, {0,0} }; /* represents the icon as an array of vertices */
 static const XPoint stickyiconbb    = {4,8};	/* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
 
-static const unsigned int baralpha = 0x01;
+static const unsigned int baralpha = 0xb1;
 static const unsigned int borderalpha = OPAQUE;
 static const unsigned int alphas[][4]      = {
     [SchemeNorm] 		= { OPAQUE, baralpha, borderalpha, borderalpha },
 	[SchemeSel]  		= { OPAQUE, baralpha, borderalpha, borderalpha },
+	[SchemeSticky]  	= { OPAQUE, baralpha, borderalpha, borderalpha },
+	[SchemeScratchNorm] = { OPAQUE, baralpha, borderalpha, borderalpha },
+	[SchemeScratchSel]  = { OPAQUE, baralpha, borderalpha, borderalpha },
 	[SchemeLtSymbol]  	= { OPAQUE, baralpha, borderalpha, borderalpha },
 	[SchemeStButton]  	= { OPAQUE, baralpha, borderalpha, borderalpha },
     [SchemeTagsNorm] 	= { OPAQUE, baralpha, borderalpha, borderalpha },
@@ -145,17 +166,33 @@ static const char *termcmd[]  	= { "st", "-T", "Terminal", NULL };
 static const char *webcmd[]		= { "firefox", NULL };
 static const char *fmcmd[]		= { "thunar", NULL };
 static const char *dmenucmd[]	= { "dmenu_run", "-fn", dmenufont, "-nb", normbgcolor, "-nf", selfloatcolor, "-sb", tagsselbgcolor, "-sf", ltsymbolfgcolor, NULL };
+static const char *roficmd[]	= { "rofi", "-show", "drun", NULL };
+
+static const char *blup[]		= { "brightness", "--inc", NULL };
+static const char *bldown[]		= { "brightness", "--dec", NULL };
+
+static const char *volup[]		= { "volume", "--inc", NULL };
+static const char *voldown[]	= { "volume", "--dec", NULL };
+static const char *volmute[]	= { "volume", "--toggle", NULL };
+static const char *micmute[]	= { "volume", "--toggle-mic", NULL };
 
 static const char *sptermcmd[] 	= { "t", "st", "-c", "spterm,spterm", NULL }; 
 static const char *spfmcmd[] 	= { "r", "st", "-c", "spfm,spfm", "-e", "ranger", NULL }; 
 
-
+#include <X11/XF86keysym.h>
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_space,  spawn,          {.v = dmenucmd } },
+	{ MODKEY,                       XK_space,  spawn,          {.v = roficmd } },
+	{ MODKEY|ControlMask,           XK_space,  spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_w,      spawn,          {.v = webcmd } },
 	{ MODKEY,                       XK_e,      spawn,          {.v = fmcmd } },
+	{ 0, 							XF86XK_AudioMute, 			spawn, {.v = volmute } },
+	{ 0, 							XF86XK_AudioMicMute, 		spawn, {.v = micmute } },
+	{ 0, 							XF86XK_AudioLowerVolume, 	spawn, {.v = volup } },
+	{ 0, 							XF86XK_AudioRaiseVolume, 	spawn, {.v = voldown } },
+	{ 0, 							XF86XK_MonBrightnessUp, 	spawn, {.v = blup } },
+	{ 0, 							XF86XK_MonBrightnessDown, 	spawn, {.v = bldown } },
 	{ MODKEY,						XK_grave,  togglescratch,  {.v = sptermcmd } },
 	{ MODKEY,						XK_r,      togglescratch,  {.v = spfmcmd } },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },

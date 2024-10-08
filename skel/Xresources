@@ -3,6 +3,7 @@ Xft.dpi:	144
 Xcursor.theme:  Bibata-Modern-Ice
 Xcursor.size:	44
 
+#define cblack #000000
 #define base00 #0F1419
 #define base01 #131721
 #define base02 #272D38
@@ -44,4 +45,40 @@ Xcursor.size:	44
 
 st.font:        FiraMono Nerd Font:size=16
 st.borderpx:    12
+
+dwm.normfgcolor:            base05
+dwm.normbgcolor:            base00
+dwm.normbordercolor:        base03
+dwm.normfloatcolor:         base03
+
+dwm.selfgcolor:             base07
+dwm.selbgcolor:             base00
+dwm.selbordercolor:         base0D
+dwm.selfloatcolor:          base0E
+
+dwm.stbuttonfgcolor:        base0D
+dwm.stbuttonbgcolor:        base00
+dwm.stbuttonbordercolor:    cblack    
+dwm.stbuttonfloatcolor:     cblack
+
+dwm.ltsymbolfgcolor:        base0A
+dwm.ltsymbolbgcolor:        base00
+dwm.ltsymbolbordercolor:    cblack
+dwm.ltsymbolfloatcolor:     cblack
+
+dwm.tagsnormfgcolor:        base03
+dwm.tagsnormbgcolor:        base00
+dwm.tagsnormbordercolor:    cblack
+dwm.tagsnormfloatcolor:     cblack
+
+dwm.tagsoccfgcolor:         base0D
+dwm.tagsoccbgcolor:         base00
+dwm.tagsoccbordercolor:     cblack
+dwm.tagsoccfloatcolor:      cblack
+
+dwm.tagsselfgcolor:         base07
+dwm.tagsselbgcolor:         #a10101
+dwm.tagsselbordercolor:     cblack
+dwm.tagsselfloatcolor:      cblack
+
 
